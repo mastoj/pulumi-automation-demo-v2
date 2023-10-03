@@ -1,5 +1,4 @@
 import React from "react";
-import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import NewResourceModal from "./new-resource-modal";
 import * as z from "zod";
@@ -15,6 +14,7 @@ import {
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import SubmitButton from "./SubmitButton";
 
 const newRepositorySchema = z.object({
   repositoryName: z.string().min(2).max(50),
@@ -32,8 +32,10 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof newRepositorySchema>) => {
+  const onSubmit = async (values: z.infer<typeof newRepositorySchema>) => {
     console.log("==> Creating repository: ", values);
+    // Sleep for 10 seconds to simulate a long-running operation.
+    await new Promise((resolve) => setTimeout(resolve, 10000));
     form.reset();
     onOpenChange(false);
   };
@@ -54,7 +56,11 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
                 <FormItem>
                   <FormLabel>Resource group</FormLabel>
                   <FormControl>
-                    <Input placeholder="eg. my-awesome-rg" {...field} />
+                    <Input
+                      placeholder="eg. my-awesome-rg"
+                      {...field}
+                      disabled={form.formState.isSubmitting}
+                    />
                   </FormControl>
                   <FormDescription>
                     This is the name of your resource group. It must be globally
@@ -64,7 +70,7 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
                 </FormItem>
               )}
             />
-            <Button type="submit">Create</Button>
+            <SubmitButton isLoading={form.formState.isSubmitting} />
           </div>
         </form>
       </Form>

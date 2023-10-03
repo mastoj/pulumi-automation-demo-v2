@@ -14,6 +14,7 @@ import {
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import SubmitButton from "./SubmitButton";
 
 const newResourceGroupSchema = z.object({
   resourceGroupName: z
@@ -59,7 +60,11 @@ const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
                 <FormItem>
                   <FormLabel>Resource group</FormLabel>
                   <FormControl>
-                    <Input placeholder="eg. my-awesome-rg" {...field} />
+                    <Input
+                      placeholder="eg. my-awesome-rg"
+                      {...field}
+                      disabled={form.formState.isSubmitting}
+                    />
                   </FormControl>
                   <FormDescription>
                     This is the name of your resource group. It must be globally
@@ -69,7 +74,7 @@ const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
                 </FormItem>
               )}
             />
-            <Button type="submit">Create</Button>
+            <SubmitButton isLoading={form.formState.isSubmitting} />
           </div>
         </form>
       </Form>
