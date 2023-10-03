@@ -15,14 +15,18 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import SubmitButton from "../SubmitButton";
-import { createResourceGroup } from "./actions";
+import { checkForUpdates, startCreateResourceGroup } from "./actions";
 import { NewResourceGroupType, newResourceGroupSchema } from "./schema";
+import { Label } from "../ui/label";
+import ConsoleWindow from "../console-window/console-window";
+import { useConsoleWindow } from "../console-window/console-window-provider";
 
 type NewResourceGroupProps = {
   onOpenChange: (open: boolean) => void;
 };
 
 const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
+  const consoleWindow = useConsoleWindow();
   const form = useForm<NewResourceGroupType>({
     resolver: zodResolver(newResourceGroupSchema),
     defaultValues: {
@@ -31,8 +35,22 @@ const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
   });
 
   const onSubmit = async (values: z.infer<typeof newResourceGroupSchema>) => {
+    consoleWindow.setLines([]);
+    consoleWindow.toggleOpen(true);
     console.log(values);
-    const result = await createResourceGroup(values);
+    let result = await startCreateResourceGroup(values);
+    console.log("==> Started creating resource group: ", result);
+    while (result.status === "in-progress") {
+      consoleWindow.setLines(result.output);
+      console.log("==> Waiting for resource group to be created...", result);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      result = await checkForUpdates(result.id);
+    }
+
+    if (result.status === "failed") {
+      console.log("==> Failed to create resource group: ", result);
+      return;
+    }
     console.log("==> Created resource group: ", result);
     form.reset();
     onOpenChange(false);

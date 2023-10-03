@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import SideMenu from "./SideMenu";
 import { ThemeProvider } from "@/components/theme-provider";
+import ConsoleWindow from "@/components/console-window/console-window";
+import { ConsoleWindowProvider } from "@/components/console-window/console-window-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,11 +29,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex flex-row gap-4">
-            <SideMenu />
-            <main>{children}</main>
-          </div>
-          {modal}
+          <ConsoleWindowProvider>
+            <div className="flex flex-row gap-4">
+              <SideMenu />
+              <main>{children}</main>
+            </div>
+            {modal}
+            <ConsoleWindow />
+          </ConsoleWindowProvider>
         </ThemeProvider>
       </body>
     </html>
