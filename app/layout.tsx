@@ -13,11 +13,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  modal,
 }: {
   children: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
@@ -29,6 +31,7 @@ export default function RootLayout({
             <SideMenu />
             <main>{children}</main>
           </div>
+          {modal}
         </ThemeProvider>
       </body>
     </html>

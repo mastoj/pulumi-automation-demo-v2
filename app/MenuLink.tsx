@@ -11,7 +11,8 @@ type Props = {
 };
 
 const isActive = (href: string, pathName: string) => {
-  return pathName === href;
+  console.log("pathName", pathName, href);
+  return pathName.indexOf(href) >= 0;
 };
 
 const MenuLink = ({ href, title, icon }: Props) => {
