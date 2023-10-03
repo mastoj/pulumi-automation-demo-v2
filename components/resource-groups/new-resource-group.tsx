@@ -39,10 +39,8 @@ const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
     consoleWindow.toggleOpen(true);
     console.log(values);
     let result = await startCreateResourceGroup(values);
-    console.log("==> Started creating resource group: ", result);
     while (result.status === "in-progress") {
       consoleWindow.setLines(result.output);
-      console.log("==> Waiting for resource group to be created...", result);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       result = await checkForUpdates(result.id);
     }
@@ -51,7 +49,6 @@ const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
       console.log("==> Failed to create resource group: ", result);
       return;
     }
-    console.log("==> Created resource group: ", result);
     form.reset();
     onOpenChange(false);
   };

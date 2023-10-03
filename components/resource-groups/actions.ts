@@ -46,7 +46,6 @@ const startProvisioning = (id: string, stack: Stack) => {
         onEvent: (e) => updateProcess(id, e),
       })
       .then((result) => {
-        console.log("==> Result: ", result);
         processes[id].status = "success";
       })
       .catch((err) => {
@@ -74,9 +73,7 @@ export const startCreateResourceGroup = async (
     projectName: "resource-groups",
   };
   try {
-    console.log("==> Creating stack: ", args);
     const stack = await LocalWorkspace.createOrSelectStack(args);
-    console.log("==> Stack created: ", stack);
     startProvisioning(id, stack);
     processes[id] = {
       id,
