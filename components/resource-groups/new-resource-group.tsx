@@ -1,7 +1,9 @@
+"use client";
 import React from "react";
-import { Input } from "./ui/input";
-import NewResourceModal from "./new-resource-modal";
+import NewResourceModal from "../new-resource-modal";
 import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -10,40 +12,36 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { Button } from "./ui/button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import SubmitButton from "./SubmitButton";
+} from "../ui/form";
+import { Input } from "../ui/input";
+import SubmitButton from "../SubmitButton";
+import { createResourceGroup } from "./actions";
+import { NewResourceGroupType, newResourceGroupSchema } from "./schema";
 
-const newRepositorySchema = z.object({
-  repositoryName: z.string().min(2).max(50),
-});
-
-type NewRepositoryProps = {
+type NewResourceGroupProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
-  const form = useForm<z.infer<typeof newRepositorySchema>>({
-    resolver: zodResolver(newRepositorySchema),
+const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
+  const form = useForm<NewResourceGroupType>({
+    resolver: zodResolver(newResourceGroupSchema),
     defaultValues: {
-      repositoryName: "",
+      resourceGroupName: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof newRepositorySchema>) => {
-    console.log("==> Creating repository: ", values);
-    // Sleep for 10 seconds to simulate a long-running operation.
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+  const onSubmit = async (values: z.infer<typeof newResourceGroupSchema>) => {
+    console.log(values);
+    const result = await createResourceGroup(values);
+    console.log("==> Created resource group: ", result);
     form.reset();
     onOpenChange(false);
   };
 
   return (
     <NewResourceModal
-      title="Create repository"
-      description="Create a new repository to get started with your project."
+      title="Create resource group"
+      description="Create a new resource group to get started with your project."
       onOpenChange={onOpenChange}
     >
       <Form {...form}>
@@ -51,7 +49,7 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
           <div className="grid gap-4 py-4">
             <FormField
               control={form.control}
-              name="repositoryName"
+              name="resourceGroupName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Resource group</FormLabel>
@@ -78,4 +76,4 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
   );
 };
 
-export default NewRepository;
+export default NewResourceGroup;

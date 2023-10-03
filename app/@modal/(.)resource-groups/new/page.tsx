@@ -1,6 +1,6 @@
 "use client";
-import NewRepository from "@/components/new-repository";
-import NewResourceGroup from "@/components/new-resource-group";
+import NewRepository from "@/components/repositories/new-repository";
+import NewResourceGroup from "@/components/resource-groups/new-resource-group";
 import { useRouter } from "next/navigation";
 import React from "react";
 

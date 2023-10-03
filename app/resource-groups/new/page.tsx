@@ -1,5 +1,5 @@
 "use client";
-import NewResourceGroup from "@/components/new-resource-group";
+import NewResourceGroup from "@/components/resource-groups/new-resource-group";
 import { useRouter } from "next/navigation";
 import React from "react";
 
