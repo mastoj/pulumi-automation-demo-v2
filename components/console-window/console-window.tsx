@@ -28,9 +28,9 @@ const ConsoleHeaderBar = () => {
 const ConsoleBody = () => {
   const consoleWindow = useConsoleWindow();
   return (
-    <div className="h-full w-full bg-background overflow-auto">
+    <div className="h-full w-full bg-background overflow-auto px-2">
       {consoleWindow.lines.map((line, index) => (
-        <div key={index}>{line.trim() === "" ? "" : "$ " + line}</div>
+        <div key={index}>{line.trim() === "" ? "" : "$> " + line}</div>
       ))}
     </div>
   );

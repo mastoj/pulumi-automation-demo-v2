@@ -5,6 +5,7 @@ import SideMenu from "./SideMenu";
 import { ThemeProvider } from "@/components/theme-provider";
 import ConsoleWindow from "@/components/console-window/console-window";
 import { ConsoleWindowProvider } from "@/components/console-window/console-window-provider";
+import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +23,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={cn(inter.className, "overflow-hidden")}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -30,9 +31,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ConsoleWindowProvider>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-row h-screen">
               <SideMenu />
-              <main>{children}</main>
+              <main className="flex-1 px-4 overflow-scroll pb-16">
+                {children}
+              </main>
             </div>
             {modal}
             <ConsoleWindow />

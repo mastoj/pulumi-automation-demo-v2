@@ -8,7 +8,14 @@ type Props = {};
 
 const CreateResourceGroupModal = (props: Props) => {
   const router = useRouter();
-  return <NewResourceGroup onOpenChange={router.back} />;
+  return (
+    <NewResourceGroup
+      onOpenChange={() => {
+        router.back();
+        router.refresh();
+      }}
+    />
+  );
 };
 
 export default CreateResourceGroupModal;

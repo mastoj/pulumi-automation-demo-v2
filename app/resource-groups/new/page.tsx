@@ -8,7 +8,12 @@ type Props = {};
 const NewResourceGroupPage = (props: Props) => {
   const router = useRouter();
   return (
-    <NewResourceGroup onOpenChange={() => router.push("/resource-groups")} />
+    <NewResourceGroup
+      onOpenChange={() => {
+        router.push("/resource-groups");
+        router.refresh();
+      }}
+    />
   );
 };
 
