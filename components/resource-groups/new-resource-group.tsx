@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import NewResourceModal from "../new-resource-modal";
-import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -15,11 +14,10 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import SubmitButton from "../SubmitButton";
-import { checkForUpdates, startCreateResourceGroup } from "./actions";
 import { NewResourceGroupType, newResourceGroupSchema } from "./schema";
-import { Label } from "../ui/label";
-import ConsoleWindow from "../console-window/console-window";
 import { useConsoleWindow } from "../console-window/console-window-provider";
+import { createPulumiClient, getProgress, startUp } from "@/lib/pulumi-client";
+import { createResourceGroup } from "./pulumiProgram";
 
 type NewResourceGroupProps = {
   onOpenChange: (open: boolean) => void;
@@ -34,15 +32,25 @@ const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof newResourceGroupSchema>) => {
+  const onSubmit = async (values: NewResourceGroupType) => {
     consoleWindow.setLines([]);
     consoleWindow.toggleOpen(true);
-    console.log(values);
-    let result = await startCreateResourceGroup(values);
+    console.log("==> Starting the client: ", values);
+
+    // const pulumiClient = await createPulumiClient<NewResourceGroupType>(
+    //   "resource-groups",
+    //   createResourceGroup
+    // );
+
+    let result = await startUp("resource-groups", createResourceGroup)(
+      values.resourceGroupName,
+      values
+    );
+    console.log("==> Did I get here");
     while (result.status === "in-progress") {
       consoleWindow.setLines(result.output);
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      result = await checkForUpdates(result.id);
+      result = await getProgress(result.id);
     }
 
     if (result.status === "failed") {

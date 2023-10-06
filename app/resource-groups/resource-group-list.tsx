@@ -7,16 +7,24 @@ import { formatDistance } from "date-fns";
 import { HiOutlineTrash } from "react-icons/hi";
 import { createPulumiClient } from "@/lib/pulumi-client";
 import { revalidatePath } from "next/cache";
+import { NewResourceGroupType } from "@/components/resource-groups/schema";
+import { createResourceGroup } from "@/components/resource-groups/pulumiProgram";
 
 type Props = {};
 
 const ResourceGroupList = async (props: Props) => {
-  const pulumiClient = await createPulumiClient("resource-groups");
+  const pulumiClient = await createPulumiClient<NewResourceGroupType>(
+    "resource-groups",
+    createResourceGroup
+  );
   const stacks = await pulumiClient.getStacks();
 
   async function handleDelete(formData: FormData) {
     "use server";
-    const pulumiClient = await createPulumiClient("resource-groups");
+    const pulumiClient = await createPulumiClient(
+      "resource-groups",
+      createResourceGroup
+    );
     const name = formData.get("name") as string;
     await pulumiClient.removeStack(name);
     revalidatePath("/resource-groups");
