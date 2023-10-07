@@ -23,7 +23,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(inter.className, "overflow-hidden")}>
+      <body
+        className={cn(
+          inter.className,
+          "overflow-hidden relative w-screen h-screen"
+        )}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

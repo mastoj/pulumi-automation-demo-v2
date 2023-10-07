@@ -1,31 +1,31 @@
 "use server";
 import { EngineEvent, LocalWorkspace, Stack } from "@pulumi/pulumi/automation";
 import { ResourceItem } from "./types";
-
-export type ResourceType = "resource-groups" | "repositories";
+import { createResourceGroup } from "@/components/resource-groups/pulumiProgram";
+import { ResourceType, programFactory } from "./program-factory";
 
 export type Progress = {
   id: string;
   status: "in-progress" | "failed" | "success";
   output: string[];
-  error?: string;
+  error?: {
+    message?: string;
+    stack?: string;
+  };
 };
 
 type ProgressId = string;
-type ProgramFactory<TSpecification> = (
-  specification: TSpecification
-) => () => Promise<Record<string, any> | void>;
 
-export type PulumiClient<TSpecification> = {
+export type PulumiClient = {
   workspace: LocalWorkspace;
   projectName: String;
-  programFactory: ProgramFactory<TSpecification>;
+  //  programFactory: ProgramFactory<TSpecification>;
   getStacks: () => Promise<ResourceItem[]>;
   removeStack: (stackName: string) => Promise<void>;
-  startUp: (
-    stackName: string,
-    specification: TSpecification
-  ) => Promise<Progress>;
+  // startUp: (
+  //   stackName: string,
+  //   specification: TSpecification
+  // ) => Promise<Progress>;
   getProgress: (progressId: ProgressId) => Progress;
 };
 
@@ -59,7 +59,10 @@ const startProvisioning = (id: string, stack: Stack) => {
       .catch((err) => {
         console.log("==> Error: ", err);
         progressLookup[id].status = "failed";
-        progressLookup[id].error = err;
+        progressLookup[id].error = {
+          message: err?.message,
+          stack: err?.stack,
+        };
       });
     console.log("==> Up started: ", id);
   } catch (e: any) {
@@ -69,38 +72,37 @@ const startProvisioning = (id: string, stack: Stack) => {
   }
 };
 
-export const startUp =
-  <TSpecification>(
-    projectName: ResourceType,
-    programFactory: ProgramFactory<TSpecification>
-  ) =>
-  async (
-    stackName: string,
-    specification: TSpecification
-  ): Promise<Progress> => {
-    const id = generateId();
-    try {
-      const stack = await LocalWorkspace.createOrSelectStack({
-        stackName,
-        projectName,
-        program: programFactory(specification),
-      });
-      startProvisioning(id, stack);
-      progressLookup[id] = {
-        id,
-        status: "in-progress",
-        output: [],
-      };
-    } catch {
-      progressLookup[id] = {
-        id,
-        status: "failed",
-        output: [],
-        error: "Failed to create stack",
-      };
-    }
-    return progressLookup[id];
-  };
+export const startUp = async <TSpecification>(
+  projectName: ResourceType,
+  stackName: string,
+  specification: TSpecification
+): Promise<Progress> => {
+  const id = generateId();
+  try {
+    const program = programFactory<TSpecification>(projectName);
+    const stack = await LocalWorkspace.createOrSelectStack({
+      stackName,
+      projectName,
+      program: program(specification),
+    });
+    startProvisioning(id, stack);
+    progressLookup[id] = {
+      id,
+      status: "in-progress",
+      output: [],
+    };
+  } catch {
+    progressLookup[id] = {
+      id,
+      status: "failed",
+      output: [],
+      error: {
+        message: "Failed to start up",
+      },
+    };
+  }
+  return progressLookup[id];
+};
 
 const getStacks = (ws: LocalWorkspace) => async (): Promise<ResourceItem[]> => {
   const stacks: ResourceItem[] = await ws.listStacks();
@@ -124,10 +126,9 @@ export const getProgress = (progressId: ProgressId): Progress => {
   return progressLookup[progressId];
 };
 
-export const createPulumiClient = async <TSpecification>(
-  projectName: ResourceType,
-  programFactory: ProgramFactory<TSpecification>
-): Promise<PulumiClient<TSpecification>> => {
+export const createPulumiClient = async (
+  projectName: ResourceType
+): Promise<PulumiClient> => {
   const workspace = await LocalWorkspace.create({
     projectSettings: {
       name: projectName,
@@ -137,10 +138,9 @@ export const createPulumiClient = async <TSpecification>(
   return {
     workspace,
     projectName,
-    programFactory,
     getStacks: getStacks(workspace),
     removeStack: removeStack(projectName),
-    startUp: startUp(projectName, programFactory),
+    //startUp: startUp(projectName, programFactory),
     getProgress,
   };
 };

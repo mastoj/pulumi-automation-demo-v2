@@ -16,7 +16,7 @@ import { Input } from "../ui/input";
 import SubmitButton from "../SubmitButton";
 import { NewResourceGroupType, newResourceGroupSchema } from "./schema";
 import { useConsoleWindow } from "../console-window/console-window-provider";
-import { createPulumiClient, getProgress, startUp } from "@/lib/pulumi-client";
+import { getProgress, startUp } from "@/lib/pulumi-client";
 import { createResourceGroup } from "./pulumiProgram";
 
 type NewResourceGroupProps = {
@@ -35,18 +35,11 @@ const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
   const onSubmit = async (values: NewResourceGroupType) => {
     consoleWindow.setLines([]);
     consoleWindow.toggleOpen(true);
-    console.log("==> Starting the client: ", values);
-
-    // const pulumiClient = await createPulumiClient<NewResourceGroupType>(
-    //   "resource-groups",
-    //   createResourceGroup
-    // );
-
-    let result = await startUp("resource-groups", createResourceGroup)(
+    let result = await startUp(
+      "resource-groups",
       values.resourceGroupName,
       values
     );
-    console.log("==> Did I get here");
     while (result.status === "in-progress") {
       consoleWindow.setLines(result.output);
       await new Promise((resolve) => setTimeout(resolve, 2000));
