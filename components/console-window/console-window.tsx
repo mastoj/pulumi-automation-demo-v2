@@ -46,19 +46,21 @@ const ConsoleWindow = (props: Props) => {
   };
   return (
     <>
-      <Button
-        variant="outline"
-        onClick={handleOnClick}
-        className="fixed bottom-0 right-0 z-[99999]"
-      >
-        <HiChevronUp
-          className={cn(
-            "h-8 w-8 transition-all",
-            consoleWindow.open ? "rotate-180" : ""
-          )}
-        />
-      </Button>
       <Sheet open={consoleWindow.open} modal={false}>
+        <SheetTrigger asChild>
+          <Button
+            variant="outline"
+            onClick={handleOnClick}
+            className="fixed bottom-0 right-0 z-[99999]"
+          >
+            <HiChevronUp
+              className={cn(
+                "h-8 w-8 transition-all",
+                consoleWindow.open ? "rotate-180" : ""
+              )}
+            />
+          </Button>
+        </SheetTrigger>
         <SheetContent
           side={"bottom"}
           className="max-h-[300px] overflow-y-auto rotat"

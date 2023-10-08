@@ -1,34 +1,19 @@
 import ResourceRow from "@/components/resource-row";
-import { ResourceItem } from "@/lib/types";
-import { LocalWorkspace } from "@pulumi/pulumi/automation";
 import Link from "next/link";
 import React from "react";
 import { formatDistance } from "date-fns";
-import { HiOutlineTrash } from "react-icons/hi";
-import { createPulumiClient } from "@/lib/pulumi-client";
-import { revalidatePath } from "next/cache";
-import { NewResourceGroupType } from "@/components/resource-groups/schema";
-import { createResourceGroup } from "@/components/resource-groups/pulumiProgram";
+import { getStacks } from "@/lib/pulumi-client";
+import DeleteForm from "@/components/delete-form";
 
 type Props = {};
 
 const ResourceGroupList = async (props: Props) => {
-  const pulumiClient = await createPulumiClient<NewResourceGroupType>(
-    "resource-groups",
-    createResourceGroup
-  );
-  const stacks = await pulumiClient.getStacks();
+  const stacks = await getStacks("resource-groups");
 
-  async function handleDelete(formData: FormData) {
-    "use server";
-    const pulumiClient = await createPulumiClient(
-      "resource-groups",
-      createResourceGroup
-    );
-    const name = formData.get("name") as string;
-    await pulumiClient.removeStack(name);
-    revalidatePath("/resource-groups");
-  }
+  console.log(process.env.ARM_CLIENT_ID);
+  console.log(process.env.ARM_CLIENT_SECRET);
+  console.log(process.env.ARM_SUBSCRIPTION_ID);
+  console.log(process.env.ARM_TENANT_ID);
 
   console.log(stacks);
   return (
@@ -53,12 +38,11 @@ const ResourceGroupList = async (props: Props) => {
                     })}
                 </span>
               </Link>
-              <form action={handleDelete}>
-                <input type="hidden" name="name" value={stack.name} />
-                <button type="submit">
-                  <HiOutlineTrash className="h-8 w-8 text-red-500 cursor-pointer" />
-                </button>
-              </form>
+              <DeleteForm
+                stackName={stack.name!}
+                project="resource-groups"
+                url="resource-groups"
+              />
             </div>
           </ResourceRow>
         </li>

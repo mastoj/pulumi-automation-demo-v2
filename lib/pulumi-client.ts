@@ -16,19 +16,6 @@ export type Progress = {
 
 type ProgressId = string;
 
-export type PulumiClient = {
-  workspace: LocalWorkspace;
-  projectName: String;
-  //  programFactory: ProgramFactory<TSpecification>;
-  getStacks: () => Promise<ResourceItem[]>;
-  removeStack: (stackName: string) => Promise<void>;
-  // startUp: (
-  //   stackName: string,
-  //   specification: TSpecification
-  // ) => Promise<Progress>;
-  getProgress: (progressId: ProgressId) => Progress;
-};
-
 const generateId = () => {
   return Math.random().toString(36).substring(2, 15);
 };
@@ -104,43 +91,34 @@ export const startUp = async <TSpecification>(
   return progressLookup[id];
 };
 
-const getStacks = (ws: LocalWorkspace) => async (): Promise<ResourceItem[]> => {
-  const stacks: ResourceItem[] = await ws.listStacks();
-  return stacks;
-};
-
-const removeStack =
-  (projectName: ResourceType) =>
-  async (stackName: string): Promise<void> => {
-    const stack = await LocalWorkspace.selectStack({
-      stackName,
-      projectName,
-      program: async () => {},
-    });
-    const ws = stack.workspace;
-    await stack.destroy();
-    await ws.removeStack(stackName);
-  };
-
-export const getProgress = (progressId: ProgressId): Progress => {
-  return progressLookup[progressId];
-};
-
-export const createPulumiClient = async (
+export const getStacks = async (
   projectName: ResourceType
-): Promise<PulumiClient> => {
+): Promise<ResourceItem[]> => {
   const workspace = await LocalWorkspace.create({
     projectSettings: {
       name: projectName,
       runtime: "nodejs",
     },
   });
-  return {
-    workspace,
+
+  const stacks: ResourceItem[] = await workspace.listStacks();
+  return stacks;
+};
+
+export const removeStack = async (
+  projectName: ResourceType,
+  stackName: string
+): Promise<void> => {
+  const stack = await LocalWorkspace.selectStack({
+    stackName,
     projectName,
-    getStacks: getStacks(workspace),
-    removeStack: removeStack(projectName),
-    //startUp: startUp(projectName, programFactory),
-    getProgress,
-  };
+    program: async () => {},
+  });
+  const ws = stack.workspace;
+  await stack.destroy();
+  await ws.removeStack(stackName);
+};
+
+export const getProgress = (progressId: ProgressId): Progress => {
+  return progressLookup[progressId];
 };

@@ -15,6 +15,11 @@ export ARM_CLIENT_SECRET=$(echo $SP_RESULT | jq -r '.password')
 export ARM_SUBSCRIPTION_ID=$SUBSCRIPTION_ID
 export ARM_TENANT_ID=$(echo $SP_RESULT | jq -r '.tenant')
 
+echo "ARM_CLIENT_ID=$ARM_CLIENT_ID" > .env.local
+echo "ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET" >> .env.local
+echo "ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID" >> .env.local
+echo "ARM_TENANT_ID=$ARM_TENANT_ID" >> .env.local
+
 echo "==> Add permission for directory"
 # https://blogs.aaddevsup.xyz/2018/06/guid-table-for-windows-azure-active-directory-permissions/
 # https://learn.microsoft.com/en-us/graph/permissions-reference
@@ -30,8 +35,9 @@ az ad app permission add --id $ARM_CLIENT_ID --api 00000002-0000-0000-c000-00000
 # Application Ad
 az ad app permission add --id $ARM_CLIENT_ID --api 00000002-0000-0000-c000-000000000000 --api-permissions 1cda74f2-2616-4834-b122-5cb1b07f8a59=Role
 
-az ad app permission grant --id $ARM_CLIENT_ID --api 00000003-0000-0000-c000-000000000000
-az ad app permission grant --id $ARM_CLIENT_ID --api 00000002-0000-0000-c000-000000000000
+echo "==> Grant permission for directory"
+az ad app permission grant --id $ARM_CLIENT_ID --api 00000003-0000-0000-c000-000000000000 --scope Directory.ReadWrite.All
+az ad app permission grant --id $ARM_CLIENT_ID --api 00000002-0000-0000-c000-000000000000 --scope Directory.ReadWrite.All
 
 sleep 10
 az ad app permission admin-consent --id $ARM_CLIENT_ID
