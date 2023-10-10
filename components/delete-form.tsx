@@ -1,17 +1,9 @@
 "use client";
-/// <reference types="react-dom/experimental" />
 import { ResourceType } from "@/lib/program-factory";
 import { cn } from "@/lib/utils";
-import React from "react";
+import { useState } from "react";
 import { HiOutlineTrash } from "react-icons/hi2";
-
-// @ts-ignore
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
-import { deleteResource } from "./commonActions";
-
-const initialState = {
-  message: null,
-};
+import { useSWRConfig } from "swr";
 
 type Props = {
   stackName: string;
@@ -19,8 +11,7 @@ type Props = {
   url: string;
 };
 
-const DeleteButton = () => {
-  const { pending } = useFormStatus();
+const DeleteButton = ({ pending }: { pending: boolean }) => {
   return (
     <button
       type="submit"
@@ -36,12 +27,22 @@ const DeleteButton = () => {
 };
 
 const DeleteForm = ({ stackName, project, url }: Props) => {
+  const [pending, setPending] = useState(false);
+  const { mutate } = useSWRConfig();
+
+  const deleteResource = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setPending(true);
+    const deleteResponse = await fetch(`/api/${project}/${stackName}`, {
+      method: "DELETE",
+    });
+    if (deleteResponse.ok) {
+      mutate("/api/" + project);
+    }
+  };
   return (
-    <form action={deleteResource}>
-      <input type="hidden" name="stackName" value={stackName} />
-      <input type="hidden" name="project" value={project} />
-      <input type="hidden" name="url" value={url} />
-      <DeleteButton />
+    <form onSubmit={deleteResource}>
+      <DeleteButton pending={pending} />
     </form>
   );
 };

@@ -15,16 +15,16 @@ import {
 import { Input } from "../ui/input";
 import SubmitButton from "../SubmitButton";
 import { NewResourceGroupType, newResourceGroupSchema } from "./schema";
-import { useConsoleWindow } from "../console-window/console-window-provider";
-import { getProgress, startUp } from "@/lib/pulumi-client";
-import { createResourceGroup } from "./pulumiProgram";
+import { createResourceGroup, getProgress } from "./apiClient";
+import { Progress } from "@/lib/pulumi-client";
+import { useSWRConfig } from "swr";
 
 type NewResourceGroupProps = {
   onOpenChange: (open: boolean) => void;
 };
 
 const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
-  const consoleWindow = useConsoleWindow();
+  const { mutate } = useSWRConfig();
   const form = useForm<NewResourceGroupType>({
     resolver: zodResolver(newResourceGroupSchema),
     defaultValues: {
@@ -33,24 +33,16 @@ const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
   });
 
   const onSubmit = async (values: NewResourceGroupType) => {
-    consoleWindow.setLines([]);
-    consoleWindow.toggleOpen(true);
-    let result = await startUp(
-      "resource-groups",
-      values.resourceGroupName,
-      values
-    );
-    while (result.status === "in-progress") {
-      consoleWindow.setLines(result.output);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      result = await getProgress(result.id);
-    }
-
-    if (result.status === "failed") {
-      console.log("==> Failed to create resource group: ", result);
+    const createResult = await createResourceGroup(values);
+    console.log("==> Create result: ", createResult);
+    if (createResult.error) {
+      console.log("==> Failed to create resource group: ", createResult);
       return;
     }
+    let result = createResult as Progress;
+
     form.reset();
+    mutate("/api/resource-groups");
     onOpenChange(false);
   };
 
