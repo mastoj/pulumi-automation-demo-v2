@@ -1,4 +1,3 @@
-import { Progress } from "@/lib/pulumi-client";
 import { NewResourceGroupType } from "./schema";
 
 export const createResourceGroup = async (
@@ -9,7 +8,7 @@ export const createResourceGroup = async (
     body: JSON.stringify(newResourceGroup),
   });
   if (result.ok) {
-    return (await result.json()) as Progress;
+    return await result.json();
   }
   return { error: "Failed to create resource group" };
 };
@@ -17,7 +16,7 @@ export const createResourceGroup = async (
 export const getProgress = async (progressId: string) => {
   const result = await fetch(`/api/resource-groups/progress/${progressId}`);
   if (result.ok) {
-    return (await result.json()) as Progress;
+    return await result.json();
   }
   return { error: "Failed to get progress" };
 };

@@ -1,7 +1,6 @@
 "use server";
-import { EngineEvent, LocalWorkspace, Stack } from "@pulumi/pulumi/automation";
+import { LocalWorkspace } from "@pulumi/pulumi/automation";
 import { ResourceItem } from "./types";
-import { createResourceGroup } from "@/components/resource-groups/pulumiProgram";
 import { ResourceType, programFactory } from "./program-factory";
 
 const generateId = () => {
@@ -73,8 +72,4 @@ export const removeStack = async (
   const ws = stack.workspace;
   await stack.destroy();
   await ws.removeStack(stackName);
-};
-
-export const getProgress = (progressId: ProgressId): Progress => {
-  return progressLookup[progressId];
 };

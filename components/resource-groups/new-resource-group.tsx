@@ -15,8 +15,7 @@ import {
 import { Input } from "../ui/input";
 import SubmitButton from "../SubmitButton";
 import { NewResourceGroupType, newResourceGroupSchema } from "./schema";
-import { createResourceGroup, getProgress } from "./apiClient";
-import { Progress } from "@/lib/pulumi-client";
+import { createResourceGroup } from "./apiClient";
 import { useSWRConfig } from "swr";
 
 type NewResourceGroupProps = {
@@ -39,7 +38,6 @@ const NewResourceGroup = ({ onOpenChange }: NewResourceGroupProps) => {
       console.log("==> Failed to create resource group: ", createResult);
       return;
     }
-    let result = createResult as Progress;
 
     form.reset();
     mutate("/api/resource-groups");
