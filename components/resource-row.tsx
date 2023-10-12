@@ -10,14 +10,14 @@ type ResourceRowProps = {
 
 const ResourceRow = ({ stack }: ResourceRowProps) => {
   return (
-    <div className="w-full border rounded px-4 py-2 hover:bg-secondary hover:text-secondary-foreground">
+    <div className="w-full border rounded px-4 py-2 hover:bg-secondary hover:text-secondary-foreground group">
       <div className="flex flew-row items-center gap-4">
         <Link
           href={stack.url || "#"}
           target="_blank"
           className="flex-1 grid grid-cols-2 gap-2 grid-rows-2 items-center justify-between"
         >
-          <span>{stack.name}</span>
+          <span className="group-hover:underline">{stack.name}</span>
           <span className="flex justify-end">
             Resources: {stack.resourceCount}
           </span>
