@@ -11,7 +11,10 @@
   "dependencies": {
     "@hookform/resolvers": "^3.3.1",
     "@pulumi/azure-native": "^2.10.0",
+    "@pulumi/azuread": "^5.42.0",
+    "@pulumi/github": "^5.20.0",
     "@pulumi/pulumi": "^3.88.1",
+    "@pulumi/random": "^4.14.0",
     "@radix-ui/react-dialog": "^1.0.4",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",

@@ -23,7 +23,7 @@ const SideMenu = (props: Props) => {
   return (
     <div className="bg-secondary h-screen border-r">
       <div className="w-full flex flex-row justify-between items-center">
-        <h1 className="text-4xl p-4">Automation demo</h1>
+        <h1 className="text-4xl p-8">Automation demo</h1>
         <ThemeToggle />
       </div>
       <ul>
