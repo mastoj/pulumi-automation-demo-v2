@@ -12,7 +12,7 @@ import * as azure from "@pulumi/azure-native";
 import * as azuread from "@pulumi/azuread";
 import { RandomPassword, RandomUuid } from "@pulumi/random";
 
-type ResourceGroupArgs = {
+type DemoResourceGroupArgs = {
   resourceGroupName: string;
   subscriptionId: string;
   tenantId: string;
@@ -32,7 +32,7 @@ class DemoResourceGroup extends ComponentResource {
 
   constructor(
     name: string,
-    args: ResourceGroupArgs,
+    args: DemoResourceGroupArgs,
     opts: DemoResourceGroupOptions
   ) {
     super("oredev:demo-resource-group", name, args, {});

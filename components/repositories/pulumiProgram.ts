@@ -1,0 +1,123 @@
+"use server";
+import {
+  ComponentResource,
+  Input,
+  ResourceOptions,
+  StackReference,
+} from "@pulumi/pulumi";
+import { NewRepositoryType } from "./schema";
+import * as github from "@pulumi/github";
+import * as pulumi from "@pulumi/pulumi";
+
+type DemoRepositoryArgs = {
+  repositoryName: string;
+  resourceGroupName: string;
+  resourceGroupSettings: Input<{
+    clientId: string;
+    clientSecret: string;
+    subscriptionId: string;
+    tenantId: string;
+  }>;
+};
+
+type DemoRepositoryOptions = ResourceOptions & {
+  githubProvider: github.Provider;
+};
+
+class DemoRepository extends ComponentResource {
+  constructor(
+    name: string,
+    args: DemoRepositoryArgs,
+    opts: DemoRepositoryOptions
+  ) {
+    super("oredev:demo-repository", name, args, {});
+    const { resourceGroupName, repositoryName, resourceGroupSettings } = args;
+    const options = { provider: opts.githubProvider, parent: this };
+    const repository = new github.Repository(
+      repositoryName,
+      {
+        name: repositoryName,
+        visibility: "public",
+      },
+      options
+    );
+
+    args.resourceGroupSettings;
+    const createSecretName = (name: string) =>
+      name.toUpperCase().replace(/-/g, "_");
+    const secretName = createSecretName(`RG_${resourceGroupName}`);
+
+    const secretString = pulumi.output(resourceGroupSettings).apply({
+      clientId,
+      clientSecret,
+      subscriptionId,
+      tenantId,
+    } => ({
+      clientId: resourceGroupSettings.clientId,
+      clientSecret: resourceGroupSettings.clientSecret,
+      resourceGroupName: resourceGroupName,
+      subscriptionId: resourceGroupSettings.subscriptionId,
+      tenantId: resourceGroupSettings.tenantId,
+    }));
+    return JSON.stringify(secretString);
+
+    const resourceGroupSecret = new ActionsSecret(
+      `${spec.name}-action-secret`,
+      {
+        secretName: secretName,
+        plaintextValue: secretString,
+        repository: repository.name,
+      },
+      { deleteBeforeReplace: true }
+    );
+  }
+}
+
+export const createRepository = (data: NewRepositoryType) => async () => {
+  const { resourceGroupName, repositoryName } = data;
+  const githubToken = process.env.GITHUB_TOKEN!;
+  const githubProvider = new github.Provider("github", {
+    token: githubToken,
+    owner: "mastoj",
+  });
+  const options = {
+    githubProvider,
+  };
+
+  const resourceGroupStackRef = new StackReference(
+    `tomasja/pu-resourceGroups/${resourceGroupName}`
+  );
+  const clientId = await resourceGroupStackRef.requireOutput("clientId");
+  const clientSecret = await resourceGroupStackRef.requireOutput(
+    "clientSecret"
+  );
+  const subscriptionId = await resourceGroupStackRef.requireOutput(
+    "subscriptionId"
+  );
+  const tenantId = await resourceGroupStackRef.requireOutput("tenantId");
+
+  const resourceGroupSettings = pulumi
+    .all([clientId, clientSecret, subscriptionId, tenantId])
+    .apply(([clientId, clientSecret, subscriptionId, tenantId]: string[]) => ({
+      clientId,
+      clientSecret,
+      subscriptionId,
+      tenantId,
+    }));
+  const rg = new DemoRepository(
+    "demo",
+    {
+      resourceGroupName: data.resourceGroupName,
+      repositoryName: data.repositoryName,
+      resourceGroupSettings: {
+        clientId,
+        clientSecret,
+        subscriptionId,
+        tenantId,
+      },
+    },
+    options
+  );
+
+  return {};
+};
