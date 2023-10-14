@@ -3,12 +3,14 @@ import { ResourceItem } from "@/lib/types";
 import { formatDistance } from "date-fns";
 import Link from "next/link";
 import DeleteForm from "./delete-form";
+import { ResourceType } from "@/lib/program-factory";
 
 type ResourceRowProps = {
   stack: ResourceItem;
+  resourceType: ResourceType;
 };
 
-const ResourceRow = ({ stack }: ResourceRowProps) => {
+const ResourceRow = ({ stack, resourceType }: ResourceRowProps) => {
   return (
     <div className="w-full border rounded px-4 py-2 hover:bg-secondary hover:text-secondary-foreground group">
       <div className="flex flew-row items-center gap-4">
@@ -30,8 +32,8 @@ const ResourceRow = ({ stack }: ResourceRowProps) => {
         </Link>
         <DeleteForm
           stackName={stack.name!}
-          project="resource-groups"
-          url="resource-groups"
+          project={resourceType}
+          url={resourceType}
         />
       </div>
     </div>

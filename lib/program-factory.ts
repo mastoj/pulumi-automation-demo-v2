@@ -1,4 +1,4 @@
-import { createRepository } from "@/components/repositories/actions";
+import { createRepository } from "@/components/repositories/pulumiProgram";
 import { createResourceGroup } from "@/components/resource-groups/pulumiProgram";
 
 const programLookup = {

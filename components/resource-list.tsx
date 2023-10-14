@@ -42,7 +42,7 @@ const ResourceGroupList = ({ resourceType }: ResourceListProps) => {
     <ul className="flex flex-col gap-4">
       {stacks.map((stack) => (
         <li key={stack.name}>
-          <ResourceRow stack={stack} />
+          <ResourceRow stack={stack} resourceType={resourceType} />
         </li>
       ))}
     </ul>

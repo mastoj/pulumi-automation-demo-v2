@@ -83,7 +83,7 @@ export const createRepository = (data: NewRepositoryType) => async () => {
   };
 
   const resourceGroupStackRef = new StackReference(
-    `tomasja/pu-resourceGroups/${resourceGroupName}`
+    `tomasja/resource-groups/${resourceGroupName}`
   );
   const clientId = await resourceGroupStackRef.requireOutput("clientId");
   const clientSecret = await resourceGroupStackRef.requireOutput(
@@ -105,14 +105,9 @@ export const createRepository = (data: NewRepositoryType) => async () => {
   const rg = new DemoRepository(
     "demo",
     {
-      resourceGroupName: data.resourceGroupName,
-      repositoryName: data.repositoryName,
-      resourceGroupSettings: {
-        clientId,
-        clientSecret,
-        subscriptionId,
-        tenantId,
-      },
+      resourceGroupName: resourceGroupName,
+      repositoryName: repositoryName,
+      resourceGroupSettings: resourceGroupSettings,
     },
     options
   );

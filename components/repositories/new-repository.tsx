@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Input } from "../ui/input";
 import NewResourceModal from "../new-resource-modal";
 import * as z from "zod";
@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import SubmitButton from "../SubmitButton";
 import { newRepositorySchema } from "./schema";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { fetcher } from "@/lib/swr-helpers";
 import Spinner from "../spinner";
 import { ResourceItem } from "@/lib/types";
@@ -30,12 +30,15 @@ import {
   CommandItem,
 } from "../ui/command";
 import { cn } from "@/lib/utils";
+import { createRepository } from "./apiClient";
 
 type NewRepositoryProps = {
   onOpenChange: (open: boolean) => void;
 };
 
 const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
+  const { mutate } = useSWRConfig();
+  const [resourceGroupOpen, setResourceGroupOpen] = React.useState(false);
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const form = useForm<z.infer<typeof newRepositorySchema>>({
     resolver: zodResolver(newRepositorySchema),
@@ -46,6 +49,18 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
   });
 
   const onSubmit = async (values: z.infer<typeof newRepositorySchema>) => {
+    console.log("==> Create repo: ", values);
+    const createResult = await createRepository(values);
+    console.log("==> Create result: ", createResult);
+    if (createResult.error) {
+      console.log("==> Failed to create resource group: ", createResult);
+      return;
+    }
+
+    form.reset();
+    mutate("/api/repositories");
+    onOpenChange(false);
+
     form.reset();
     onOpenChange(false);
   };
@@ -54,11 +69,14 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
     fetcher
   );
 
-  const resourceGroupOptions =
-    resourceGroups?.map((rg) => ({
-      label: rg.name!,
-      value: rg.name!,
-    })) ?? [];
+  const resourceGroupOptions = useMemo(
+    () =>
+      resourceGroups?.map((rg) => ({
+        label: rg.name!,
+        value: rg.name!,
+      })) ?? [],
+    [resourceGroups]
+  );
   return (
     <NewResourceModal
       title="Create repository"
@@ -76,17 +94,17 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
                 name="repositoryName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Resource group</FormLabel>
+                    <FormLabel>Repository</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="eg. my-awesome-rg"
+                        placeholder="eg. my-awesome-repo"
                         {...field}
                         disabled={form.formState.isSubmitting}
                       />
                     </FormControl>
                     <FormDescription>
-                      This is the name of your resource group. It must be
-                      globally unique.
+                      This is the name of your repository. It must be unique in
+                      the organization.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -98,7 +116,10 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Resource group</FormLabel>
-                    <Popover>
+                    <Popover
+                      open={resourceGroupOpen}
+                      onOpenChange={setResourceGroupOpen}
+                    >
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -109,10 +130,12 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
                               "w-full justify-between",
                               !field.value && "text-muted-foreground"
                             )}
+                            disabled={form.formState.isSubmitting}
                           >
                             {field.value
                               ? resourceGroupOptions.find(
-                                  (option) => option.value === field.value
+                                  (resourceGroup) =>
+                                    resourceGroup.value === field.value
                                 )?.label
                               : "Select resource group"}
                             <HiChevronUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -121,37 +144,35 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
                       </PopoverTrigger>
                       <PopoverContent
                         className="min-w-[200px] p-0"
-                        style={{
-                          width: buttonRef.current
-                            ? `${buttonRef.current?.clientWidth}px`
-                            : "auto",
-                        }}
+                        style={{ width: buttonRef.current?.clientWidth + "px" }}
                       >
                         <Command>
                           <CommandInput
-                            placeholder="Search resource groups..."
+                            placeholder="Search resource group..."
                             className="h-9"
                           />
-                          <CommandEmpty>No resource groups found.</CommandEmpty>
+                          <CommandEmpty>No resource group found.</CommandEmpty>
                           <CommandGroup>
-                            {resourceGroupOptions.map((option) => (
+                            {resourceGroupOptions.map((resourceGroup) => (
                               <CommandItem
-                                value={option.label}
-                                key={option.value}
+                                value={resourceGroup.label}
+                                key={resourceGroup.value}
+                                onChange={() => {
+                                  alert("CHANGED: " + resourceGroup.value);
+                                }}
                                 onSelect={() => {
-                                  console.log("HEEELLLLO");
-                                  console.log("==> Selected: ", option);
                                   form.setValue(
                                     "resourceGroupName",
-                                    option.value
+                                    resourceGroup.value
                                   );
+                                  setResourceGroupOpen(false);
                                 }}
                               >
-                                {option.label}
+                                {resourceGroup.label}
                                 <HiCheck
                                   className={cn(
                                     "ml-auto h-4 w-4",
-                                    option.value === field.value
+                                    resourceGroup.value === field.value
                                       ? "opacity-100"
                                       : "opacity-0"
                                   )}
@@ -164,7 +185,7 @@ const NewRepository = ({ onOpenChange }: NewRepositoryProps) => {
                     </Popover>
                     <FormDescription>
                       This is the resource group that will be connected to the
-                      repository.
+                      repo.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

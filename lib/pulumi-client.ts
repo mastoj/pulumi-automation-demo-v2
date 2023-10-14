@@ -57,7 +57,6 @@ export const getStacks = async (
   });
 
   const stacks: ResourceItem[] = await workspace.listStacks();
-  console.log("==> stacks", stacks);
   const filteredStacks = stacks.filter(
     (stack) => (stack.name?.indexOf("/") ?? -1) < 0
   );
@@ -68,6 +67,7 @@ export const removeStack = async (
   projectName: ResourceType,
   stackName: string
 ): Promise<void> => {
+  console.log("==> removeStack", projectName, stackName);
   const stack = await LocalWorkspace.selectStack({
     stackName,
     projectName,
