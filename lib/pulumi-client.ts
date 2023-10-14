@@ -51,13 +51,17 @@ export const getStacks = async (
 ): Promise<ResourceItem[]> => {
   const workspace = await LocalWorkspace.create({
     projectSettings: {
-      name: projectName,
+      name: `${projectName}`,
       runtime: "nodejs",
     },
   });
 
   const stacks: ResourceItem[] = await workspace.listStacks();
-  return stacks;
+  console.log("==> stacks", stacks);
+  const filteredStacks = stacks.filter(
+    (stack) => (stack.name?.indexOf("/") ?? -1) < 0
+  );
+  return filteredStacks;
 };
 
 export const removeStack = async (
