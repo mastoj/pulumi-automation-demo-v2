@@ -1,17 +1,15 @@
 "use client";
 import ResourceRow from "@/components/resource-row";
-import Link from "next/link";
 import React from "react";
-import { formatDistance } from "date-fns";
-import { getStacks } from "@/lib/pulumi-client";
-import DeleteForm from "@/components/delete-form";
 import useSWR from "swr";
 import { ResourceItem } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ResourceType } from "@/lib/program-factory";
+import { fetcher } from "@/lib/swr-helpers";
 
-type Props = {};
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+type ResourceListProps = {
+  resourceType: ResourceType;
+};
 
 const ListSkeleton = () => {
   return (
@@ -29,12 +27,12 @@ const ListSkeleton = () => {
   );
 };
 
-const ResourceGroupList = (props: Props) => {
+const ResourceGroupList = ({ resourceType }: ResourceListProps) => {
   const {
     data: stacks,
     error,
     isLoading,
-  } = useSWR<ResourceItem[]>("/api/resource-groups", fetcher);
+  } = useSWR<ResourceItem[]>(`/api/${resourceType}`, fetcher);
 
   console.log(stacks);
   if (isLoading && !stacks) {

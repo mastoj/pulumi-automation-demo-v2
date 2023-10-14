@@ -42,33 +42,31 @@ class DemoRepository extends ComponentResource {
       options
     );
 
-    args.resourceGroupSettings;
+    const secretString = pulumi.output(resourceGroupSettings).apply((rgs) => {
+      const secretJson = {
+        clientId: rgs.clientId,
+        clientSecret: rgs.clientSecret,
+        resourceGroupName: resourceGroupName,
+        subscriptionId: rgs.subscriptionId,
+        tenantId: rgs.tenantId,
+      };
+      return JSON.stringify(secretJson);
+    });
+
     const createSecretName = (name: string) =>
       name.toUpperCase().replace(/-/g, "_");
-    const secretName = createSecretName(`RG_${resourceGroupName}`);
+    const secretName = createSecretName(
+      `RG_${resourceGroupName.toUpperCase()}`
+    );
 
-    const secretString = pulumi.output(resourceGroupSettings).apply({
-      clientId,
-      clientSecret,
-      subscriptionId,
-      tenantId,
-    } => ({
-      clientId: resourceGroupSettings.clientId,
-      clientSecret: resourceGroupSettings.clientSecret,
-      resourceGroupName: resourceGroupName,
-      subscriptionId: resourceGroupSettings.subscriptionId,
-      tenantId: resourceGroupSettings.tenantId,
-    }));
-    return JSON.stringify(secretString);
-
-    const resourceGroupSecret = new ActionsSecret(
-      `${spec.name}-action-secret`,
+    const resourceGroupSecret = new github.ActionsSecret(
+      `${resourceGroupName}-action-secret`,
       {
         secretName: secretName,
         plaintextValue: secretString,
         repository: repository.name,
       },
-      { deleteBeforeReplace: true }
+      { ...options, deleteBeforeReplace: true }
     );
   }
 }
