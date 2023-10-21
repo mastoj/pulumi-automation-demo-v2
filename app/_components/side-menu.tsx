@@ -1,8 +1,8 @@
 import Link from "next/link";
 import React from "react";
 import { AiFillAppstore, AiFillGithub } from "react-icons/ai";
-import MenuLink from "./MenuLink";
-import { ThemeToggle } from "@/components/theme-toggle";
+import MenuLink from "./menu-link";
+import { ThemeToggle } from "@/app/_components/theme-toggle";
 
 type Props = {};
 
@@ -21,9 +21,9 @@ const menuItems = [
 
 const SideMenu = (props: Props) => {
   return (
-    <div className="bg-secondary h-screen border-r">
-      <div className="w-full flex flex-row justify-between items-center">
-        <h1 className="text-4xl p-8">Automation demo</h1>
+    <div className="h-screen border-r shadow-lg">
+      <div className="w-full flex flex-row justify-between items-center p-4 gap-4">
+        <h1 className="text-4xl">Automation demo</h1>
         <ThemeToggle />
       </div>
       <ul>

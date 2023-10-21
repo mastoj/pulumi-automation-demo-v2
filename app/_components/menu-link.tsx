@@ -20,8 +20,9 @@ const MenuLink = ({ href, title, icon }: Props) => {
   return (
     <Link
       className={cn(
-        "flex flex-row text-2xl items-center gap-1 px-4 py-2 hover:bg-secondary-foreground hover:text-secondary",
-        isActive(href, pathName) && "bg-primary text-white"
+        "flex flex-row text-2xl items-center gap-1 px-4 py-2 hover:bg-foreground/10 transition-colors duration-200",
+        isActive(href, pathName) &&
+          "bg-primary text-white hover:text-foreground"
       )}
       href={href}
     >

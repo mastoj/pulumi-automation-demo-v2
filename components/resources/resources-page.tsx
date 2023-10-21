@@ -2,7 +2,7 @@ import Link from "next/link";
 import React, { PropsWithChildren, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { buttonVariants } from "@/components/ui/button";
-import ResourceList from "@/components/resource-list";
+import ResourceList from "@/components/resources/resource-list";
 import { ResourceType } from "@/lib/program-factory";
 
 type ResourcesPageProps = {

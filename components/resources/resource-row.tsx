@@ -12,7 +12,7 @@ type ResourceRowProps = {
 
 const ResourceRow = ({ stack, resourceType }: ResourceRowProps) => {
   return (
-    <div className="w-full border rounded px-4 py-2 hover:bg-secondary hover:text-secondary-foreground group">
+    <div className="w-full border rounded px-4 py-2 hover:bg-foreground/10 transition-colors duration-200 group">
       <div className="flex flew-row items-center gap-4">
         <Link
           href={stack.url || "#"}

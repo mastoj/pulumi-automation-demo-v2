@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import NewResourceModal from "../new-resource-modal";
+import NewResourceModal from "../resources/new-resource-modal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import SubmitButton from "../SubmitButton";
+import SubmitButton from "../submit-button";
 import { NewResourceGroupType, newResourceGroupSchema } from "./schema";
 import { createResourceGroup } from "./apiClient";
 import { useSWRConfig } from "swr";

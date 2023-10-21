@@ -102,7 +102,7 @@ export const createRepository = (data: NewRepositoryType) => async () => {
       subscriptionId,
       tenantId,
     }));
-  const rg = new DemoRepository(
+  const repo = new DemoRepository(
     "demo",
     {
       resourceGroupName: resourceGroupName,

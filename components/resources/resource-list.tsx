@@ -1,5 +1,5 @@
 "use client";
-import ResourceRow from "@/components/resource-row";
+import ResourceRow from "@/components/resources/resource-row";
 import React from "react";
 import useSWR from "swr";
 import { ResourceItem } from "@/lib/types";

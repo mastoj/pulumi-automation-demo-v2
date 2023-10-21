@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Input } from "../ui/input";
-import NewResourceModal from "../new-resource-modal";
+import NewResourceModal from "../resources/new-resource-modal";
 import * as z from "zod";
 import { HiChevronUpDown, HiCheck } from "react-icons/hi2";
 import {
@@ -15,7 +15,7 @@ import {
 import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import SubmitButton from "../SubmitButton";
+import SubmitButton from "../submit-button";
 import { newRepositorySchema } from "./schema";
 import useSWR, { useSWRConfig } from "swr";
 import { fetcher } from "@/lib/swr-helpers";
