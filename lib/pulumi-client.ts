@@ -7,10 +7,6 @@ const generateId = () => {
   return Math.random().toString(36).substring(2, 15);
 };
 
-const updateOutput = (id: string, output: any) => {
-  console.log("==> updateOutput", id, output);
-};
-
 const progressLogger = () => {
   const id = generateId();
   return (message: any) => {
