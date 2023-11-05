@@ -1,7 +1,6 @@
 "use server";
 import {
   ComponentResource,
-  Input,
   Output,
   ResourceOptions,
   output,
@@ -10,7 +9,7 @@ import {
 import { NewResourceGroupType } from "./schema";
 import * as azure from "@pulumi/azure-native";
 import * as azuread from "@pulumi/azuread";
-import { RandomPassword, RandomUuid } from "@pulumi/random";
+import { RandomUuid } from "@pulumi/random";
 
 type DemoResourceGroupArgs = {
   resourceGroupName: string;
@@ -57,13 +56,6 @@ class DemoResourceGroup extends ComponentResource {
       azureOptions
     );
 
-    const password = new RandomPassword(
-      "password",
-      {
-        length: 50,
-      },
-      { parent: this }
-    );
     const adApp = new azuread.Application(
       "app",
       {
