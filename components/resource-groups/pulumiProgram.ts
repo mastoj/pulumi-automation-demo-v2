@@ -10,6 +10,7 @@ import { NewResourceGroupType } from "./schema";
 import * as azure from "@pulumi/azure-native";
 import * as azuread from "@pulumi/azuread";
 import { RandomUuid } from "@pulumi/random";
+import { sub } from "date-fns";
 
 type DemoResourceGroupArgs = {
   resourceGroupName: string;
@@ -109,13 +110,13 @@ export const createResourceGroup = (data: NewResourceGroupType) => async () => {
     clientId: process.env.ARM_CLIENT_ID,
     clientSecret: process.env.ARM_CLIENT_SECRET,
     subscriptionId: subscriptionId,
-    tenantId: process.env.ARM_TENANT_ID,
+    tenantId: tenantId,
   });
   const azureAdProvider = new azuread.Provider("azuread", {
     metadataHost: "",
     clientId: process.env.ARM_CLIENT_ID,
     clientSecret: process.env.ARM_CLIENT_SECRET,
-    tenantId: process.env.ARM_TENANT_ID,
+    tenantId: tenantId,
   });
   const options = {
     azureProvider: azureProvider,
@@ -131,7 +132,7 @@ export const createResourceGroup = (data: NewResourceGroupType) => async () => {
     resourceGroupName: rg.resourceGroupName,
     clientId: rg.clientId,
     clientSecret: rg.clientSecret,
-    tenantId: rg.tenantId,
+    tenantId: tenantId,
     subscriptionId: rg.subscriptionId,
   };
 };
